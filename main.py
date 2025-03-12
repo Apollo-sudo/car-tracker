@@ -5,13 +5,14 @@ API_TOKEN = ''
 bot = telebot.TeleBot(API_TOKEN)
 
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
+async def send_welcome(message):
     markup = types.InlineKeyboardMarkup()
-    button = types.InlineKeyboardButton(text="Открыть карту", url="https://your-web-app-url.com")
+    button = types.InlineKeyboardButton(text="Открыть карту", url="")
     markup.add(button)
     bot.send_message(message.chat.id, "Привет! Нажми на кнопку ниже, чтобы открыть карту с твоим местоположением.", reply_markup=markup)
 
 bot.polling()
+
 # from telebot import types
 
 # API_TOKEN = '8126643282:AAGmgnc56Qlm-E7pkBvWqAvu8SkZlmlX0OE'

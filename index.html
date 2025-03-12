@@ -1,32 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Карта</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
-    <script>
-        function initMap() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    var userLocation = {lat: position.coords.latitude, lng: position.coords.longitude};
-                    var map = new google.maps.Map(document.getElementById('map'), {
-                        zoom: 15,
-                        center: userLocation
-                    });
-                    var marker = new google.maps.Marker({
-                        position: userLocation,
-                        map: map
-                    });
-                });
-            } else {
-                alert("Geolocation is not supported by this browser.");
-            }
-        }
-    </script>
+    <title>Карта в Telegram</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; }
+        #map { width: 100%; height: 100vh; }
+    </style>
 </head>
-<body onload="initMap()">
-    <h1>Ваше местоположение</h1>
-    <div id="map" style="height: 500px; width: 100%;"></div>
+<body>
+    <div id="map"></div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем на весь экран
+
+        // Инициализируем карту
+        let map = L.map('map').setView([55.7558, 37.6173], 10); // Москва по умолчанию
+
+        // Добавляем слой OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Получаем местоположение пользователя
+        navigator.geolocation.getCurrentPosition(position => {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+
+            // Обновляем карту на местоположение пользователя
+            map.setView([lat, lon], 15);
+            L.marker([lat, lon]).addTo(map).bindPopup("Ты здесь!").openPopup();
+
+            // Отправляем данные в бот
+            tg.sendData(JSON.stringify({ latitude: lat, longitude: lon }));
+        }, error => {
+            alert("Не удалось получить геопозицию: " + error.message);
+        });
+    </script>
 </body>
 </html>
